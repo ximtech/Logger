@@ -1,5 +1,7 @@
 # Logger
 
+[![tests](https://github.com/ximtech/Logger/actions/workflows/cmake-ci.yml/badge.svg?branch=main)](https://github.com/ximtech/Logger/actions/workflows/cmake-ci.yml)
+
 Simple library for logging written in C. \
 Useful with ITM plugin: [link](https://github.com/ximtech/itm_viewer)
 
