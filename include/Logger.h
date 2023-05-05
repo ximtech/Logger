@@ -3,11 +3,10 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdbool.h>
-#include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <assert.h>
 
 #if defined(_WIN32) || defined(_WIN64)
     #include <winsock2.h>
