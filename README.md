@@ -47,7 +47,7 @@ dd MMM yyyy hh:mm:ss | LEVEL | TAG - message
 #include "Logger.h"
 ```
 
-#### Available logging macros
+### Available logging macros
 ```c
 LOG_TRACE(TAG, ...);
 LOG_DEBUG(TAG, ...);
@@ -57,14 +57,14 @@ LOG_ERROR(TAG, ...);
 LOG_FATAL(TAG, ...);
 ```
 
-#### Console logging
+### Console logging
 ```c
 LoggerEvent *consoleLogger = subscribeConsoleLogger(LOG_LEVEL_DEBUG);
 assert(consoleLogger->isSubscribed);
 LOG_INFO("TAG", "Logging to console");
 ```
 
-#### File logging
+### File logging
 
 ***NOTE:*** Log file should have `.log` extension
 
@@ -85,7 +85,7 @@ The output of the `test.log` file is the following:
 05 May 2023 14:14:24 | DEBUG | MAIN - Format example: 123
 ```
 
-#### Backup files
+### Backup files
 
 Backup file format:
 ```
