@@ -185,8 +185,6 @@ void logMessage(const char *tag, LogLevel severity, const char *format, ...) {
         unlockThread();
         return;
     }
-    va_list list;
-    va_start(list, format);
 
     for (uint8_t i = 0; i < LOGGER_MAX_SUBSCRIBERS; i++) {
         LoggerEvent *subscriber = &loggerSubscriberArray[i];
@@ -195,14 +193,14 @@ void logMessage(const char *tag, LogLevel severity, const char *format, ...) {
         }
 
         if (severity >= subscriber->level) {
-            subscriber->list = list;
+            va_start(subscriber->list, format);
             subscriber->tag = tag;
             subscriber->format = format;
             subscriber->function(subscriber, severity);
+            va_end(subscriber->list);
         }
     }
 
-    va_end(list);
     memset(messageBuffer, 0, strlen(messageBuffer));
     unlockThread();
 }
