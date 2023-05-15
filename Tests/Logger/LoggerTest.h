@@ -392,7 +392,7 @@ static MunitResult testLogLevelToString(const MunitParameter params[], void *tes
 static MunitTest loggerTests[] = {
         {.name =  "Test logLevelToString() - should correctly convert level to string", .test = testLogLevelToString},
         {.name =  "Test console logger - should correctly log messages to console", .test = testConsoleLogger},
-//        {.name =  "Test file logger - should correctly log messages to file and rotate them", .test = testFileLogger},
+        {.name =  "Test file logger - should correctly log messages to file and rotate them", .test = testFileLogger},
         {.name =  "Test custom logger - should correctly format messages for custom logger", .test = testLogCustomCallback},
         END_OF_TESTS
 };
