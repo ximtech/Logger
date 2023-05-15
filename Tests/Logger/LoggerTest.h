@@ -55,7 +55,7 @@ static MunitResult testConsoleLogger(const MunitParameter params[], void *testSt
     assert_true(checkLogEntry(buffer, "WARN", "TEST - test some message: [4]\n"));
     assert_true(checkLogEntry(buffer, "ERROR", "TEST - test some message: [5]\n"));
     assert_true(checkLogEntry(buffer, "FATAL", "TEST - test some message: [6]\n"));
-    loggerUnsubscribe(console);
+    loggerUnsubscribeAll();
     fclose(file);
 
     // level filtering test
@@ -78,7 +78,7 @@ static MunitResult testConsoleLogger(const MunitParameter params[], void *testSt
     assert_true(checkLogEntry(buffer, "WARN", "TEST - test some message: [4]\n"));
     assert_true(checkLogEntry(buffer, "ERROR", "TEST - test some message: [5]\n"));
     assert_true(checkLogEntry(buffer, "FATAL", "TEST - test some message: [6]\n"));
-    loggerUnsubscribe(console);
+    loggerUnsubscribeAll();
     fclose(file);
 
     console = subscribeConsoleLogger(LOG_LEVEL_FATAL);
@@ -100,7 +100,7 @@ static MunitResult testConsoleLogger(const MunitParameter params[], void *testSt
     assert_false(checkLogEntry(buffer, "WARN", "TEST - test some message: [4]\n"));
     assert_false(checkLogEntry(buffer, "ERROR", "TEST - test some message: [5]\n"));
     assert_true(checkLogEntry(buffer, "FATAL", "TEST - test some message: [6]\n"));
-    loggerUnsubscribe(console);
+    loggerUnsubscribeAll();
     fclose(file);
     remove("output.txt");
 
@@ -159,203 +159,203 @@ static MunitResult testFileLogger(const MunitParameter params[], void *testStrin
     assert_true(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]\n"));
     assert_true(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]\n"));
     assert_true(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]\n"));
-    loggerUnsubscribe(event);
+    loggerUnsubscribeAl;
     remove("test.log");
 
-//    // Test level filtering
-//    event = subscribeFileLogger(LOG_LEVEL_WARN, "test.log", 1024, 0);
-//    assert_true(event->isSubscribed);
-//
-//    LOG_INFO("TEST", "test some message: [%d]", 1);
-//    LOG_DEBUG("TEST", "test some message: [%d]", 2);
-//    LOG_DEBUG("TEST", "test some message: [%d]", 3);
-//    LOG_INFO("TEST", "test some message: [%d]", 4);
-//    LOG_WARN("TEST", "test some message: [%d]", 5);
-//    LOG_ERROR("TEST", "test some message: [%d]", 6);
-//    LOG_FATAL("TEST", "test some message: [%d]", 7);
-//
-//    LOG_INFO("TEST", "test some message: [%d]", 8);
-//    LOG_DEBUG("TEST", "test some message: [%d]", 9);
-//    LOG_DEBUG("TEST", "test some message: [%d]", 10);
-//    LOG_INFO("TEST", "test some message: [%d]", 11);
-//    LOG_WARN("TEST", "test some message: [%d]", 12);
-//    LOG_ERROR("TEST", "test some message: [%d]", 13);
-//    LOG_FATAL("TEST", "test some message: [%d]", 14);
-//
-//    memset(buffer, 0, 1024);
-//    readFileContents("test.log", buffer);
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [1]\n"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [2]\n"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [3]\n"));
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [4]\n"));
-//    assert_true(checkFileEntry(buffer, " | WARN | TEST - test some message: [5]\n"));
-//    assert_true(checkFileEntry(buffer, " | ERROR | TEST - test some message: [6]\n"));
-//    assert_true(checkFileEntry(buffer, " | FATAL | TEST - test some message: [7]\n"));
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [8]\n"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [9]\n"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [10]\n"));
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [11]\n"));
-//    assert_true(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]\n"));
-//    assert_true(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]\n"));
-//    assert_true(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]\n"));
-//    loggerUnsubscribe(event);
-//    remove("test.log");
-//
-//    // Rolling files
-//    event = subscribeFileLogger(LOG_LEVEL_TRACE, "test.log", 128, 3);
-//    assert_true(event->isSubscribed);
-//
-//    LOG_INFO("TEST", "test some message: [%d]", 1);
-//    LOG_DEBUG("TEST", "test some message: [%d]", 2);
-//    LOG_DEBUG("TEST", "test some message: [%d]", 3);
-//    LOG_INFO("TEST", "test some message: [%d]", 4);
-//    LOG_WARN("TEST", "test some message: [%d]", 5);
-//    LOG_ERROR("TEST", "test some message: [%d]", 6);
-//    LOG_FATAL("TEST", "test some message: [%d]", 7);
-//
-//    LOG_INFO("TEST", "test some message: [%d]", 8);
-//    LOG_DEBUG("TEST", "test some message: [%d]", 9);
-//    LOG_DEBUG("TEST", "test some message: [%d]", 10);
-//    LOG_INFO("TEST", "test some message: [%d]", 11);
-//    LOG_WARN("TEST", "test some message: [%d]", 12);
-//    LOG_ERROR("TEST", "test some message: [%d]", 13);
-//    LOG_FATAL("TEST", "test some message: [%d]", 14);
-//
-//    // check test.log
-//    memset(buffer, 0, 1024);
-//    readFileContents("test.log", buffer);
-//    assert_true(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]"));
-//    assert_true(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]"));
-//
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [1]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [2]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [3]"));
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [4]"));
-//    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [5]"));
-//    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [6]"));
-//    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [7]"));
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [8]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [9]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [10]"));
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [11]"));
-//    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]"));
-//    remove("test.log");
-//
-//
-//    char nameBuffer[64] = {0};
-//    // check test-<timestamp>.log
-//    getBackupFileName(nameBuffer, NULL);
-//    memset(buffer, 0, 1024);
-//    readFileContents(nameBuffer, buffer);
-//    assert_true(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [10]"));
-//    assert_true(checkFileEntry(buffer, " | INFO | TEST - test some message: [11]"));
-//    assert_true(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]"));
-//
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [1]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [2]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [3]"));
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [4]"));
-//    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [5]"));
-//    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [6]"));
-//    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [7]"));
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [8]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [9]"));
-//    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]"));
-//    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]"));
-//    remove(nameBuffer);
-//
-//    // check test-<timestamp>.log.2
-//    memset(nameBuffer, 0, 64);
-//    getBackupFileName(nameBuffer, "2");
-//    memset(buffer, 0, 1024);
-//    readFileContents(nameBuffer, buffer);
-//    assert_true(checkFileEntry(buffer, " | INFO | TEST - test some message: [4]"));
-//    assert_true(checkFileEntry(buffer, " | WARN | TEST - test some message: [5]"));
-//    assert_true(checkFileEntry(buffer, " | ERROR | TEST - test some message: [6]"));
-//
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [1]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [2]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [3]"));
-//    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [7]"));
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [8]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [9]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [10]"));
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [11]"));
-//    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]"));
-//    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]"));
-//    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]"));
-//    remove(nameBuffer);
-//
-//    // check test-<timestamp>.log.3
-//    memset(nameBuffer, 0, 64);
-//    getBackupFileName(nameBuffer, "3");
-//    memset(buffer, 0, 1024);
-//    readFileContents(nameBuffer, buffer);
-//    assert_true(checkFileEntry(buffer, " | FATAL | TEST - test some message: [7]"));
-//    assert_true(checkFileEntry(buffer, " | INFO | TEST - test some message: [8]"));
-//    assert_true(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [9]"));
-//
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [1]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [2]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [3]"));
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [4]"));
-//    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [5]"));
-//    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [6]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [10]"));
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [11]"));
-//    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]"));
-//    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]"));
-//    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]"));
-//    remove(nameBuffer);
-//
-//    // check that no other files
-//    memset(nameBuffer, 0, 64);
-//    getBackupFileName(nameBuffer, "1");
-//    memset(buffer, 0, 1024);
-//    readFileContents(nameBuffer, buffer);
-//    assert_true(strlen(buffer) == 0);
-//    loggerUnsubscribe(event);
-//    remove("test.log");
-//
-//    // check for overflow
-//    event = subscribeFileLogger(LOG_LEVEL_TRACE, "test.log", 128, 0);
-//    assert_true(event->isSubscribed);
-//
-//    LOG_INFO("TEST", "test some message: [%d]", 1);
-//    LOG_DEBUG("TEST", "test some message: [%d]", 2);
-//    LOG_DEBUG("TEST", "test some message: [%d]", 3);
-//    LOG_INFO("TEST", "test some message: [%d]", 4);
-//    LOG_WARN("TEST", "test some message: [%d]", 5);
-//    LOG_ERROR("TEST", "test some message: [%d]", 6);
-//    LOG_FATAL("TEST", "test some message: [%d]", 7);
-//
-//    LOG_INFO("TEST", "test some message: [%d]", 8);
-//    LOG_DEBUG("TEST", "test some message: [%d]", 9);
-//    LOG_DEBUG("TEST", "test some message: [%d]", 10);
-//    LOG_INFO("TEST", "test some message: [%d]", 11);
-//    LOG_WARN("TEST", "test some message: [%d]", 12);
-//    LOG_ERROR("TEST", "test some message: [%d]", 13);
-//    LOG_FATAL("TEST", "test some message: [%d]", 14);
-//
-//    memset(buffer, 0, 1024);
-//    readFileContents("test.log", buffer);
-//    assert_true(checkFileEntry(buffer, " | INFO | TEST - test some message: [1]"));
-//    assert_true(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [2]"));
-//    assert_true(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [3]"));
-//
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [4]"));
-//    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [5]"));
-//    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [6]"));
-//    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [7]"));
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [8]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [9]"));
-//    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [10]"));
-//    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [11]"));
-//    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]"));
-//    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]"));
-//    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]"));
-//    loggerUnsubscribe(event);
-//    remove("test.log");
+    // Test level filtering
+    event = subscribeFileLogger(LOG_LEVEL_WARN, "test.log", 1024, 0);
+    assert_true(event->isSubscribed);
+
+    LOG_INFO("TEST", "test some message: [%d]", 1);
+    LOG_DEBUG("TEST", "test some message: [%d]", 2);
+    LOG_DEBUG("TEST", "test some message: [%d]", 3);
+    LOG_INFO("TEST", "test some message: [%d]", 4);
+    LOG_WARN("TEST", "test some message: [%d]", 5);
+    LOG_ERROR("TEST", "test some message: [%d]", 6);
+    LOG_FATAL("TEST", "test some message: [%d]", 7);
+
+    LOG_INFO("TEST", "test some message: [%d]", 8);
+    LOG_DEBUG("TEST", "test some message: [%d]", 9);
+    LOG_DEBUG("TEST", "test some message: [%d]", 10);
+    LOG_INFO("TEST", "test some message: [%d]", 11);
+    LOG_WARN("TEST", "test some message: [%d]", 12);
+    LOG_ERROR("TEST", "test some message: [%d]", 13);
+    LOG_FATAL("TEST", "test some message: [%d]", 14);
+
+    memset(buffer, 0, 1024);
+    readFileContents("test.log", buffer);
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [1]\n"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [2]\n"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [3]\n"));
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [4]\n"));
+    assert_true(checkFileEntry(buffer, " | WARN | TEST - test some message: [5]\n"));
+    assert_true(checkFileEntry(buffer, " | ERROR | TEST - test some message: [6]\n"));
+    assert_true(checkFileEntry(buffer, " | FATAL | TEST - test some message: [7]\n"));
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [8]\n"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [9]\n"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [10]\n"));
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [11]\n"));
+    assert_true(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]\n"));
+    assert_true(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]\n"));
+    assert_true(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]\n"));
+    loggerUnsubscribeAl;
+    remove("test.log");
+
+    // Rolling files
+    event = subscribeFileLogger(LOG_LEVEL_TRACE, "test.log", 128, 3);
+    assert_true(event->isSubscribed);
+
+    LOG_INFO("TEST", "test some message: [%d]", 1);
+    LOG_DEBUG("TEST", "test some message: [%d]", 2);
+    LOG_DEBUG("TEST", "test some message: [%d]", 3);
+    LOG_INFO("TEST", "test some message: [%d]", 4);
+    LOG_WARN("TEST", "test some message: [%d]", 5);
+    LOG_ERROR("TEST", "test some message: [%d]", 6);
+    LOG_FATAL("TEST", "test some message: [%d]", 7);
+
+    LOG_INFO("TEST", "test some message: [%d]", 8);
+    LOG_DEBUG("TEST", "test some message: [%d]", 9);
+    LOG_DEBUG("TEST", "test some message: [%d]", 10);
+    LOG_INFO("TEST", "test some message: [%d]", 11);
+    LOG_WARN("TEST", "test some message: [%d]", 12);
+    LOG_ERROR("TEST", "test some message: [%d]", 13);
+    LOG_FATAL("TEST", "test some message: [%d]", 14);
+
+    // check test.log
+    memset(buffer, 0, 1024);
+    readFileContents("test.log", buffer);
+    assert_true(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]"));
+    assert_true(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]"));
+
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [1]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [2]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [3]"));
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [4]"));
+    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [5]"));
+    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [6]"));
+    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [7]"));
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [8]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [9]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [10]"));
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [11]"));
+    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]"));
+    remove("test.log");
+
+
+    char nameBuffer[64] = {0};
+    // check test-<timestamp>.log
+    getBackupFileName(nameBuffer, NULL);
+    memset(buffer, 0, 1024);
+    readFileContents(nameBuffer, buffer);
+    assert_true(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [10]"));
+    assert_true(checkFileEntry(buffer, " | INFO | TEST - test some message: [11]"));
+    assert_true(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]"));
+
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [1]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [2]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [3]"));
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [4]"));
+    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [5]"));
+    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [6]"));
+    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [7]"));
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [8]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [9]"));
+    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]"));
+    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]"));
+    remove(nameBuffer);
+
+    // check test-<timestamp>.log.2
+    memset(nameBuffer, 0, 64);
+    getBackupFileName(nameBuffer, "2");
+    memset(buffer, 0, 1024);
+    readFileContents(nameBuffer, buffer);
+    assert_true(checkFileEntry(buffer, " | INFO | TEST - test some message: [4]"));
+    assert_true(checkFileEntry(buffer, " | WARN | TEST - test some message: [5]"));
+    assert_true(checkFileEntry(buffer, " | ERROR | TEST - test some message: [6]"));
+
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [1]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [2]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [3]"));
+    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [7]"));
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [8]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [9]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [10]"));
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [11]"));
+    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]"));
+    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]"));
+    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]"));
+    remove(nameBuffer);
+
+    // check test-<timestamp>.log.3
+    memset(nameBuffer, 0, 64);
+    getBackupFileName(nameBuffer, "3");
+    memset(buffer, 0, 1024);
+    readFileContents(nameBuffer, buffer);
+    assert_true(checkFileEntry(buffer, " | FATAL | TEST - test some message: [7]"));
+    assert_true(checkFileEntry(buffer, " | INFO | TEST - test some message: [8]"));
+    assert_true(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [9]"));
+
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [1]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [2]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [3]"));
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [4]"));
+    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [5]"));
+    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [6]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [10]"));
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [11]"));
+    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]"));
+    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]"));
+    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]"));
+    remove(nameBuffer);
+
+    // check that no other files
+    memset(nameBuffer, 0, 64);
+    getBackupFileName(nameBuffer, "1");
+    memset(buffer, 0, 1024);
+    readFileContents(nameBuffer, buffer);
+    assert_true(strlen(buffer) == 0);
+    loggerUnsubscribeAl;
+    remove("test.log");
+
+    // check for overflow
+    event = subscribeFileLogger(LOG_LEVEL_TRACE, "test.log", 128, 0);
+    assert_true(event->isSubscribed);
+
+    LOG_INFO("TEST", "test some message: [%d]", 1);
+    LOG_DEBUG("TEST", "test some message: [%d]", 2);
+    LOG_DEBUG("TEST", "test some message: [%d]", 3);
+    LOG_INFO("TEST", "test some message: [%d]", 4);
+    LOG_WARN("TEST", "test some message: [%d]", 5);
+    LOG_ERROR("TEST", "test some message: [%d]", 6);
+    LOG_FATAL("TEST", "test some message: [%d]", 7);
+
+    LOG_INFO("TEST", "test some message: [%d]", 8);
+    LOG_DEBUG("TEST", "test some message: [%d]", 9);
+    LOG_DEBUG("TEST", "test some message: [%d]", 10);
+    LOG_INFO("TEST", "test some message: [%d]", 11);
+    LOG_WARN("TEST", "test some message: [%d]", 12);
+    LOG_ERROR("TEST", "test some message: [%d]", 13);
+    LOG_FATAL("TEST", "test some message: [%d]", 14);
+
+    memset(buffer, 0, 1024);
+    readFileContents("test.log", buffer);
+    assert_true(checkFileEntry(buffer, " | INFO | TEST - test some message: [1]"));
+    assert_true(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [2]"));
+    assert_true(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [3]"));
+
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [4]"));
+    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [5]"));
+    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [6]"));
+    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [7]"));
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [8]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [9]"));
+    assert_false(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [10]"));
+    assert_false(checkFileEntry(buffer, " | INFO | TEST - test some message: [11]"));
+    assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]"));
+    assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]"));
+    assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]"));
+    loggerUnsubscribeAl;
+    remove("test.log");
 
     return MUNIT_OK;
 }
@@ -371,7 +371,7 @@ static MunitResult testLogCustomCallback(const MunitParameter params[], void *te
     assert_true(event->isSubscribed);
     LOG_DEBUG("TEST", "test some message: [%d]", 2);
     LOG_INFO("TEST", "test some message: [%d]", 1);
-    loggerUnsubscribe(event);
+    loggerUnsubscribeAl;
 
     return MUNIT_OK;
 }

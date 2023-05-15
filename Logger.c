@@ -23,6 +23,7 @@ static pthread_mutex_t threadMutex;
 #endif
 
 static LoggerEvent *loggerSubscribe(LoggerEvent *event);
+static void loggerUnsubscribe(LoggerEvent *subscriber);
 static void consoleCallback(LoggerEvent *event, LogLevel severity);
 static void fileCallback(LoggerEvent *event, LogLevel severity);
 static void customCallback(LoggerEvent *event, LogLevel severity);
@@ -137,31 +138,6 @@ LoggerEvent *subscribeCustomLogger(LogLevel threshold, LoggerCallback callback) 
     return event;
 }
 
-void loggerUnsubscribe(LoggerEvent *subscriber) {
-    if (subscriber == NULL || subscriber == &ERROR_EVENT) return;
-
-    initThreadLock();
-    lockThread();
-
-    if (subscriber->file != NULL) {
-        if (subscriber->file->out != NULL) {
-            fclose(subscriber->file->out);
-        }
-        free(subscriber->file->name);
-    }
-
-    for (uint8_t i = 0; i < subscriber->maxBackupFiles; i++) {
-        free(subscriber->backupFiles[i].name);
-        if (subscriber->backupFiles[i].out != NULL) {
-            fclose(subscriber->backupFiles[i].out);
-        }
-    }
-    free(subscriber->file);
-    free(subscriber->backupFiles);
-    *subscriber = (LoggerEvent){0};
-    unlockThread();
-}
-
 void loggerUnsubscribeAll() {
     initThreadLock();
     lockThread();
@@ -215,6 +191,31 @@ static LoggerEvent *loggerSubscribe(LoggerEvent *event) {
         }
     }
     return NULL;
+}
+
+static void loggerUnsubscribe(LoggerEvent *subscriber) {
+    if (subscriber == NULL || subscriber == &ERROR_EVENT) return;
+
+    initThreadLock();
+    lockThread();
+
+    if (subscriber->file != NULL) {
+        if (subscriber->file->out != NULL) {
+            fclose(subscriber->file->out);
+        }
+        free(subscriber->file->name);
+    }
+
+    for (uint8_t i = 0; i < subscriber->maxBackupFiles; i++) {
+        free(subscriber->backupFiles[i].name);
+        if (subscriber->backupFiles[i].out != NULL) {
+            fclose(subscriber->backupFiles[i].out);
+        }
+    }
+    free(subscriber->file);
+    free(subscriber->backupFiles);
+    *subscriber = (LoggerEvent){0};
+    unlockThread();
 }
 
 static void consoleCallback(LoggerEvent *event, LogLevel severity) {
