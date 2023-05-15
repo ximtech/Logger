@@ -159,7 +159,7 @@ static MunitResult testFileLogger(const MunitParameter params[], void *testStrin
     assert_true(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]\n"));
     assert_true(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]\n"));
     assert_true(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]\n"));
-    loggerUnsubscribeAl;
+    loggerUnsubscribeAll();
     remove("test.log");
 
     // Test level filtering
@@ -198,7 +198,7 @@ static MunitResult testFileLogger(const MunitParameter params[], void *testStrin
     assert_true(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]\n"));
     assert_true(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]\n"));
     assert_true(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]\n"));
-    loggerUnsubscribeAl;
+    loggerUnsubscribeAll();
     remove("test.log");
 
     // Rolling files
@@ -314,7 +314,7 @@ static MunitResult testFileLogger(const MunitParameter params[], void *testStrin
     memset(buffer, 0, 1024);
     readFileContents(nameBuffer, buffer);
     assert_true(strlen(buffer) == 0);
-    loggerUnsubscribeAl;
+    loggerUnsubscribeAll();
     remove("test.log");
 
     // check for overflow
@@ -354,7 +354,7 @@ static MunitResult testFileLogger(const MunitParameter params[], void *testStrin
     assert_false(checkFileEntry(buffer, " | WARN | TEST - test some message: [12]"));
     assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]"));
     assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]"));
-    loggerUnsubscribeAl;
+    loggerUnsubscribeAll();
     remove("test.log");
 
     return MUNIT_OK;
@@ -371,7 +371,7 @@ static MunitResult testLogCustomCallback(const MunitParameter params[], void *te
     assert_true(event->isSubscribed);
     LOG_DEBUG("TEST", "test some message: [%d]", 2);
     LOG_INFO("TEST", "test some message: [%d]", 1);
-    loggerUnsubscribeAl;
+    loggerUnsubscribeAll();
 
     return MUNIT_OK;
 }
