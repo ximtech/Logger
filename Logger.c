@@ -196,26 +196,40 @@ static LoggerEvent *loggerSubscribe(LoggerEvent *event) {
 static void loggerUnsubscribe(LoggerEvent *subscriber) {
     if (subscriber == NULL || subscriber == &ERROR_EVENT) return;
 
-    initThreadLock();
-    lockThread();
-
     if (subscriber->file != NULL) {
         if (subscriber->file->out != NULL) {
             fclose(subscriber->file->out);
         }
-        free(subscriber->file->name);
+
+        if (subscriber->file->name != NULL) {
+            free(subscriber->file->name);
+            subscriber->file->name = NULL;
+        }
     }
 
     for (uint8_t i = 0; i < subscriber->maxBackupFiles; i++) {
-        free(subscriber->backupFiles[i].name);
+        if (subscriber->backupFiles[i].name != NULL) {
+            free(subscriber->backupFiles[i].name);
+            subscriber->backupFiles[i].name = NULL;
+        }
+
         if (subscriber->backupFiles[i].out != NULL) {
             fclose(subscriber->backupFiles[i].out);
         }
     }
-    free(subscriber->file);
-    free(subscriber->backupFiles);
-    *subscriber = (LoggerEvent){0};
-    unlockThread();
+
+    if (subscriber->file != NULL) {
+        free(subscriber->file);
+        subscriber->file = NULL;
+    }
+
+    if (subscriber->backupFiles != NULL) {
+        free(subscriber->backupFiles);
+        subscriber->backupFiles = NULL;
+    }
+
+    subscriber->maxBackupFiles = 0;
+    subscriber->isSubscribed = false;
 }
 
 static void consoleCallback(LoggerEvent *event, LogLevel severity) {
@@ -304,7 +318,7 @@ static uint32_t getLogFileSize(const char *fileName) {
 }
 
 static bool rotateLogFiles(LoggerEvent *event) {
-    if (event->file->size < event->file->maxSize) {
+    if (event->file->size <= event->file->maxSize) {
         return event->file->out != NULL;
     }
 

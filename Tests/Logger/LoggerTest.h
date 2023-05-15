@@ -6,9 +6,11 @@
 
 static void readFileContents(const char* name, char *buffer) {
     FILE *f = fopen(name, "rb");
+    if (f == NULL) return;
     fseek(f, 0, SEEK_END);
     long fsize = ftell(f);
     fseek(f, 0, SEEK_SET);
+    fsize = fsize > 1024 ? 1024 : fsize;
 
     fread(buffer, fsize, 1, f);
     fclose(f);
@@ -242,8 +244,8 @@ static MunitResult testFileLogger(const MunitParameter params[], void *testStrin
     remove("test.log");
 
 
-    char nameBuffer[64] = {0};
     // check test-<timestamp>.log
+    char nameBuffer[64] = {0};
     getBackupFileName(nameBuffer, NULL);
     memset(buffer, 0, 1024);
     readFileContents(nameBuffer, buffer);
@@ -314,11 +316,15 @@ static MunitResult testFileLogger(const MunitParameter params[], void *testStrin
     memset(buffer, 0, 1024);
     readFileContents(nameBuffer, buffer);
     assert_true(strlen(buffer) == 0);
-    loggerUnsubscribeAll();
     remove("test.log");
+//    loggerUnsubscribeAll();
 
+    return MUNIT_OK;
+}
+
+static MunitResult testLogToFileOverflow(const MunitParameter params[], void *testString) {
     // check for overflow
-    event = subscribeFileLogger(LOG_LEVEL_TRACE, "test.log", 128, 0);
+   LoggerEvent *event = subscribeFileLogger(LOG_LEVEL_TRACE, "test_2.log", 128, 0);
     assert_true(event->isSubscribed);
 
     LOG_INFO("TEST", "test some message: [%d]", 1);
@@ -337,8 +343,8 @@ static MunitResult testFileLogger(const MunitParameter params[], void *testStrin
     LOG_ERROR("TEST", "test some message: [%d]", 13);
     LOG_FATAL("TEST", "test some message: [%d]", 14);
 
-    memset(buffer, 0, 1024);
-    readFileContents("test.log", buffer);
+    char buffer[1024] = {0};
+    readFileContents("test_2.log", buffer);
     assert_true(checkFileEntry(buffer, " | INFO | TEST - test some message: [1]"));
     assert_true(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [2]"));
     assert_true(checkFileEntry(buffer, " | DEBUG | TEST - test some message: [3]"));
@@ -355,7 +361,7 @@ static MunitResult testFileLogger(const MunitParameter params[], void *testStrin
     assert_false(checkFileEntry(buffer, " | ERROR | TEST - test some message: [13]"));
     assert_false(checkFileEntry(buffer, " | FATAL | TEST - test some message: [14]"));
     loggerUnsubscribeAll();
-    remove("test.log");
+    remove("test_2.log");
 
     return MUNIT_OK;
 }
@@ -393,6 +399,7 @@ static MunitTest loggerTests[] = {
         {.name =  "Test logLevelToString() - should correctly convert level to string", .test = testLogLevelToString},
         {.name =  "Test console logger - should correctly log messages to console", .test = testConsoleLogger},
         {.name =  "Test file logger - should correctly log messages to file and rotate them", .test = testFileLogger},
+        {.name =  "Test file logger - should correctly log messages when no space left", .test = testLogToFileOverflow},
         {.name =  "Test custom logger - should correctly format messages for custom logger", .test = testLogCustomCallback},
         END_OF_TESTS
 };
