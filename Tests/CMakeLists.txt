@@ -4,12 +4,8 @@ project(Tests C)
 set(CMAKE_C_STANDARD 99)
 
 set(ROOT_DIR "..")
-set(ENABLE_TIME_ZONE_SUPPORT ON)
-set(ENABLE_TIME_ZONE_HISTORIC_RULES ON)
 
 include_directories(${ROOT_DIR}/)
-
-add_compile_definitions(ENABLE_TIME_ZONE_SUPPORT ENABLE_TIME_ZONE_HISTORIC_RULES)
 
 get_filename_component(BUILD_DIRECTORY_NAME "${CMAKE_CURRENT_BINARY_DIR}" NAME)
 add_subdirectory(${ROOT_DIR} ${BUILD_DIRECTORY_NAME})
