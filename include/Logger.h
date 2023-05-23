@@ -79,6 +79,7 @@ LoggerEvent *subscribeFileLogger(LogLevel threshold, const char *fileName, uint3
 LoggerEvent *subscribeConsoleLogger(LogLevel threshold);
 LoggerEvent *subscribeCustomLogger(LogLevel threshold, LoggerCallback callback);
 
+void loggerUnsubscribe(LoggerEvent *subscriber);
 void loggerUnsubscribeAll();
 
 const char *logLevelToString(LogLevel severity);

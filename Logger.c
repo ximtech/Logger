@@ -23,7 +23,6 @@ static pthread_mutex_t threadMutex;
 #endif
 
 static LoggerEvent *loggerSubscribe(LoggerEvent *event);
-static void loggerUnsubscribe(LoggerEvent *subscriber);
 static void consoleCallback(LoggerEvent *event, LogLevel severity);
 static void fileCallback(LoggerEvent *event, LogLevel severity);
 static void customCallback(LoggerEvent *event, LogLevel severity);
@@ -138,62 +137,7 @@ LoggerEvent *subscribeCustomLogger(LogLevel threshold, LoggerCallback callback) 
     return event;
 }
 
-void loggerUnsubscribeAll() {
-    initThreadLock();
-    lockThread();
-    for (uint8_t i = 0; i < LOGGER_MAX_SUBSCRIBERS; i++) {
-        LoggerEvent *subscriber = &loggerSubscriberArray[i];
-        if (!subscriber->isSubscribed) {
-            break;
-        }
-        loggerUnsubscribe(subscriber);
-    }
-    unlockThread();
-}
-
-const char *logLevelToString(LogLevel severity) {
-    return severity <= LOG_LEVEL_FATAL ? LEVEL_STRINGS[severity] : "UNKNOWN";
-}
-
-void logMessage(const char *tag, LogLevel severity, const char *format, ...) {
-    lockThread();
-    if (!isNeedToBeLogged(severity)) {
-        unlockThread();
-        return;
-    }
-
-    for (uint8_t i = 0; i < LOGGER_MAX_SUBSCRIBERS; i++) {
-        LoggerEvent *subscriber = &loggerSubscriberArray[i];
-        if (!subscriber->isSubscribed) {
-            break;
-        }
-
-        if (severity >= subscriber->level) {
-            va_start(subscriber->list, format);
-            subscriber->tag = tag;
-            subscriber->format = format;
-            subscriber->function(subscriber, severity);
-            va_end(subscriber->list);
-        }
-    }
-
-    memset(messageBuffer, 0, strlen(messageBuffer));
-    unlockThread();
-}
-
-static LoggerEvent *loggerSubscribe(LoggerEvent *event) {
-    for (uint8_t i = 0; i < LOGGER_MAX_SUBSCRIBERS; i++) {
-        LoggerEvent *subscriber = &loggerSubscriberArray[i];
-        if (!subscriber->isSubscribed) {
-            *subscriber = *event;
-            subscriber->isSubscribed = true;
-            return subscriber;
-        }
-    }
-    return NULL;
-}
-
-static void loggerUnsubscribe(LoggerEvent *subscriber) {
+void loggerUnsubscribe(LoggerEvent *subscriber) {
     if (subscriber == NULL || subscriber == &ERROR_EVENT) return;
 
     if (subscriber->file != NULL) {
@@ -232,6 +176,61 @@ static void loggerUnsubscribe(LoggerEvent *subscriber) {
     subscriber->isSubscribed = false;
 }
 
+void loggerUnsubscribeAll() {
+    initThreadLock();
+    lockThread();
+    for (uint8_t i = 0; i < LOGGER_MAX_SUBSCRIBERS; i++) {
+        LoggerEvent *subscriber = &loggerSubscriberArray[i];
+        if (!subscriber->isSubscribed) {
+            break;
+        }
+        loggerUnsubscribe(subscriber);
+    }
+    unlockThread();
+}
+
+const char *logLevelToString(LogLevel severity) {
+    return severity <= LOG_LEVEL_FATAL ? LEVEL_STRINGS[severity] : "UNKNOWN";
+}
+
+void logMessage(const char *tag, LogLevel severity, const char *format, ...) {
+    lockThread();
+    if (!isNeedToBeLogged(severity)) {
+        unlockThread();
+        return;
+    }
+
+    for (uint8_t i = 0; i < LOGGER_MAX_SUBSCRIBERS; i++) {
+        LoggerEvent *subscriber = &loggerSubscriberArray[i];
+        if (!subscriber->isSubscribed) {
+            continue;
+        }
+
+        if (severity >= subscriber->level) {
+            va_start(subscriber->list, format);
+            subscriber->tag = tag;
+            subscriber->format = format;
+            subscriber->function(subscriber, severity);
+            va_end(subscriber->list);
+        }
+    }
+
+    memset(messageBuffer, 0, strlen(messageBuffer));
+    unlockThread();
+}
+
+static LoggerEvent *loggerSubscribe(LoggerEvent *event) {
+    for (uint8_t i = 0; i < LOGGER_MAX_SUBSCRIBERS; i++) {
+        LoggerEvent *subscriber = &loggerSubscriberArray[i];
+        if (!subscriber->isSubscribed) {
+            *subscriber = *event;
+            subscriber->isSubscribed = true;
+            return subscriber;
+        }
+    }
+    return NULL;
+}
+
 static void consoleCallback(LoggerEvent *event, LogLevel severity) {
     size_t timestampLength = formatTimestamp(event->buffer);
 #ifdef USE_LOGGER_COLOR
@@ -251,8 +250,13 @@ static void fileCallback(LoggerEvent *event, LogLevel severity) {
         size_t tagLevelLength = formatTagLevel(event->buffer, event->tag, severity, timestampLength);
         size_t totalMessageLength = formatLogMessage(event->buffer, event->format, event->list, (timestampLength + tagLevelLength));
 
-        fprintf(event->file->out, "%s", event->buffer);
+        fwrite(event->buffer, sizeof(char), totalMessageLength, event->file->out);
+    #if defined(_WIN32) || defined(_WIN64)
         fflush(event->file->out);
+    #else
+        fflush(event->file->out);
+        fsync(fileno(event->file->out));
+    #endif /* defined(_WIN32) || defined(_WIN64) */
         event->file->size += totalMessageLength;
         memset(event->buffer, 0, totalMessageLength);
     }
@@ -296,7 +300,7 @@ static bool isNeedToBeLogged(LogLevel level) {
     for(uint32_t i = 0; i < LOGGER_MAX_SUBSCRIBERS; i++) {
         LoggerEvent *subscriber = &loggerSubscriberArray[i];
         if (!subscriber->isSubscribed) {
-            return false;
+            continue;
         }
 
         if (level >= subscriber->level) {
