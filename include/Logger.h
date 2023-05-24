@@ -30,7 +30,9 @@
 #define USE_LOGGER_COLOR
 #endif
 
-#define FILE_NAME_MAX_SIZE 256  // with null character
+#ifndef LOGGER_FILE_NAME_MAX_SIZE
+#define LOGGER_FILE_NAME_MAX_SIZE 256  // with null character
+#endif
 
 typedef enum LogLevel {
     LOG_LEVEL_TRACE,

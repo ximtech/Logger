@@ -56,9 +56,9 @@ LoggerEvent *subscribeFileLogger(LogLevel threshold, const char *fileName, uint3
     }
 
     size_t fileNameLength = strlen(fileName) + 1;   // including line terminator
-    if (fileNameLength > FILE_NAME_MAX_SIZE) {
+    if (fileNameLength > LOGGER_FILE_NAME_MAX_SIZE) {
         char *message = "ERROR: [fileName] exceeds the maximum number of characters. Allowed: [%d], actual: [%d]";
-        snprintf(ERROR_EVENT.buffer, LOGGER_BUFFER_SIZE, message, FILE_NAME_MAX_SIZE, fileNameLength);
+        snprintf(ERROR_EVENT.buffer, LOGGER_BUFFER_SIZE, message, LOGGER_FILE_NAME_MAX_SIZE, fileNameLength);
         return &ERROR_EVENT;
     }
     initThreadLock();
