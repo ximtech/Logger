@@ -174,6 +174,17 @@ void loggerUnsubscribe(LoggerEvent *subscriber) {
 
     subscriber->maxBackupFiles = 0;
     subscriber->isSubscribed = false;
+
+    for (uint8_t i = 0; i < LOGGER_MAX_SUBSCRIBERS; i++) {  // Reorganize subscribers, active should be first
+        LoggerEvent *event = &loggerSubscriberArray[i];
+        if (!event->isSubscribed && (i + 1) < LOGGER_MAX_SUBSCRIBERS) {
+            LoggerEvent *nextEvent = &loggerSubscriberArray[i + 1];
+            if (nextEvent->isSubscribed) {
+                loggerSubscriberArray[i] = *nextEvent;
+                loggerSubscriberArray[i + 1] = (LoggerEvent){0};
+            }
+        }
+    }
 }
 
 void loggerUnsubscribeAll() {
@@ -203,7 +214,7 @@ void logMessage(const char *tag, LogLevel severity, const char *format, ...) {
     for (uint8_t i = 0; i < LOGGER_MAX_SUBSCRIBERS; i++) {
         LoggerEvent *subscriber = &loggerSubscriberArray[i];
         if (!subscriber->isSubscribed) {
-            continue;
+            break;
         }
 
         if (severity >= subscriber->level) {
@@ -300,7 +311,7 @@ static bool isNeedToBeLogged(LogLevel level) {
     for(uint32_t i = 0; i < LOGGER_MAX_SUBSCRIBERS; i++) {
         LoggerEvent *subscriber = &loggerSubscriberArray[i];
         if (!subscriber->isSubscribed) {
-            continue;
+            return false;
         }
 
         if (level >= subscriber->level) {
