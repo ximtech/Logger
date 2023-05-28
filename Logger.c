@@ -3,7 +3,14 @@
 #define DEFAULT_FILE_SIZE 1048576L // 1 MB
 #define FILE_TIMESTAMP_LENGTH (sizeof("_yyyy-MM-dd") + 5)    // For example: _2023-05-03 + additional designators for files with same name
 
-static const char *LEVEL_STRINGS[] = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"};
+static const char *LEVEL_STRINGS[] = {
+        [LOG_LEVEL_UNKNOWN] = "UNKNOWN",
+        [LOG_LEVEL_TRACE] = "TRACE",
+        [LOG_LEVEL_DEBUG] = "DEBUG",
+        [LOG_LEVEL_INFO] = "INFO",
+        [LOG_LEVEL_WARN] = "WARN",
+        [LOG_LEVEL_ERROR] = "ERROR",
+        [LOG_LEVEL_FATAL] = "FATAL"};
 
 #ifdef USE_LOGGER_COLOR
 static const char *LEVEL_COLORS[] = {"\x1b[94m", "\x1b[36m", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"};
@@ -201,7 +208,31 @@ void loggerUnsubscribeAll() {
 }
 
 const char *logLevelToString(LogLevel severity) {
-    return severity <= LOG_LEVEL_FATAL ? LEVEL_STRINGS[severity] : "UNKNOWN";
+    return severity <= LOG_LEVEL_FATAL ? LEVEL_STRINGS[severity] : LEVEL_STRINGS[LOG_LEVEL_UNKNOWN];
+}
+
+LogLevel stringToLogLevel(const char *severity) {
+    if (stricmp(severity, LEVEL_STRINGS[LOG_LEVEL_TRACE]) == 0) {
+        return LOG_LEVEL_TRACE;
+
+    } else if (stricmp(severity, LEVEL_STRINGS[LOG_LEVEL_DEBUG]) == 0) {
+        return LOG_LEVEL_DEBUG;
+
+    } else if (stricmp(severity, LEVEL_STRINGS[LOG_LEVEL_INFO]) == 0) {
+        return LOG_LEVEL_INFO;
+
+    } else if (stricmp(severity, LEVEL_STRINGS[LOG_LEVEL_WARN]) == 0) {
+        return LOG_LEVEL_WARN;
+
+    } else if (stricmp(severity, LEVEL_STRINGS[LOG_LEVEL_ERROR]) == 0) {
+        return LOG_LEVEL_ERROR;
+
+    } else if (stricmp(severity, LEVEL_STRINGS[LOG_LEVEL_FATAL]) == 0) {
+        return LOG_LEVEL_FATAL;
+
+    } else {
+        return LOG_LEVEL_UNKNOWN;
+    }
 }
 
 void logMessage(const char *tag, LogLevel severity, const char *format, ...) {

@@ -395,12 +395,26 @@ static MunitResult testLogLevelToString(const MunitParameter params[], void *tes
     return MUNIT_OK;
 }
 
+static MunitResult testStringToLogLevel(const MunitParameter params[], void *testString) {
+    assert_int(LOG_LEVEL_TRACE, ==, stringToLogLevel("TRACE"));
+    assert_int(LOG_LEVEL_DEBUG, ==, stringToLogLevel("debug"));
+    assert_int(LOG_LEVEL_INFO, ==, stringToLogLevel("iNfO"));
+    assert_int(LOG_LEVEL_WARN, ==, stringToLogLevel("WARN"));
+    assert_int(LOG_LEVEL_ERROR, ==, stringToLogLevel("error"));
+    assert_int(LOG_LEVEL_FATAL, ==, stringToLogLevel("FATAL"));
+    assert_int(LOG_LEVEL_UNKNOWN, ==, stringToLogLevel("bar"));
+    assert_int(LOG_LEVEL_UNKNOWN, ==, stringToLogLevel("FOO"));
+
+    return MUNIT_OK;
+}
+
 static MunitTest loggerTests[] = {
-        {.name =  "Test logLevelToString() - should correctly convert level to string", .test = testLogLevelToString},
         {.name =  "Test console logger - should correctly log messages to console", .test = testConsoleLogger},
         {.name =  "Test file logger - should correctly log messages to file and rotate them", .test = testFileLogger},
         {.name =  "Test file logger - should correctly log messages when no space left", .test = testLogToFileOverflow},
         {.name =  "Test custom logger - should correctly format messages for custom logger", .test = testLogCustomCallback},
+        {.name =  "Test logLevelToString() - should correctly convert level to string", .test = testLogLevelToString},
+        {.name =  "Test stringToLogLevel() - should correctly convert string to level", .test = testStringToLogLevel},
         END_OF_TESTS
 };
 

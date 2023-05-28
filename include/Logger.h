@@ -35,6 +35,7 @@
 #endif
 
 typedef enum LogLevel {
+    LOG_LEVEL_UNKNOWN,
     LOG_LEVEL_TRACE,
     LOG_LEVEL_DEBUG,
     LOG_LEVEL_INFO,
@@ -85,4 +86,6 @@ void loggerUnsubscribe(LoggerEvent *subscriber);
 void loggerUnsubscribeAll();
 
 const char *logLevelToString(LogLevel severity);
+LogLevel stringToLogLevel(const char *severity);
+
 void logMessage(const char *tag, LogLevel severity, const char *format, ...);
