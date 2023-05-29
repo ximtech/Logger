@@ -438,7 +438,8 @@ static void shiftBackupFilesLeft(LogFile *files, uint8_t length) {
 }
 
 static size_t formatTimestamp(char *buffer) {
-    time_t logTime = time(NULL);
+    time_t logTime;
+    time(&logTime);
     struct tm *logLocalTime = localtime(&logTime);
     return strftime(buffer, LOGGER_BUFFER_SIZE, "%d %b %Y %H:%M:%S", logLocalTime);
 }
