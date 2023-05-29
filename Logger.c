@@ -48,6 +48,7 @@ static void shiftBackupFilesLeft(LogFile *files, uint8_t length);
 static size_t formatTimestamp(char *buffer);
 static size_t formatTagLevel(char *buffer, const char *tag, LogLevel severity, size_t timestampLength);
 static size_t formatLogMessage(char *buffer, const char *format, va_list list, size_t prefixLength);
+int strCompareICase(const char *one, const char *two);
 
 
 LoggerEvent *subscribeFileLogger(LogLevel threshold, const char *fileName, uint32_t maxFileSize, uint8_t maxBackupFiles) {
@@ -212,22 +213,22 @@ const char *logLevelToString(LogLevel severity) {
 }
 
 LogLevel stringToLogLevel(const char *severity) {
-    if (stricmp(severity, LEVEL_STRINGS[LOG_LEVEL_TRACE]) == 0) {
+    if (strCompareICase(severity, LEVEL_STRINGS[LOG_LEVEL_TRACE]) == 0) {
         return LOG_LEVEL_TRACE;
 
-    } else if (stricmp(severity, LEVEL_STRINGS[LOG_LEVEL_DEBUG]) == 0) {
+    } else if (strCompareICase(severity, LEVEL_STRINGS[LOG_LEVEL_DEBUG]) == 0) {
         return LOG_LEVEL_DEBUG;
 
-    } else if (stricmp(severity, LEVEL_STRINGS[LOG_LEVEL_INFO]) == 0) {
+    } else if (strCompareICase(severity, LEVEL_STRINGS[LOG_LEVEL_INFO]) == 0) {
         return LOG_LEVEL_INFO;
 
-    } else if (stricmp(severity, LEVEL_STRINGS[LOG_LEVEL_WARN]) == 0) {
+    } else if (strCompareICase(severity, LEVEL_STRINGS[LOG_LEVEL_WARN]) == 0) {
         return LOG_LEVEL_WARN;
 
-    } else if (stricmp(severity, LEVEL_STRINGS[LOG_LEVEL_ERROR]) == 0) {
+    } else if (strCompareICase(severity, LEVEL_STRINGS[LOG_LEVEL_ERROR]) == 0) {
         return LOG_LEVEL_ERROR;
 
-    } else if (stricmp(severity, LEVEL_STRINGS[LOG_LEVEL_FATAL]) == 0) {
+    } else if (strCompareICase(severity, LEVEL_STRINGS[LOG_LEVEL_FATAL]) == 0) {
         return LOG_LEVEL_FATAL;
 
     } else {
@@ -457,4 +458,17 @@ static size_t formatLogMessage(char *buffer, const char *format, va_list list, s
     size_t totalMessageLength = prefixLength + messageLength;
     buffer[totalMessageLength] = '\n';
     return totalMessageLength + 1;
+}
+
+int strCompareICase(const char *one, const char *two) {
+    int charOfOne;
+    int charOfTwo;
+    do {
+        charOfOne = (int) *one++;
+        charOfTwo = (int) *two++;
+        charOfOne = tolower((int) charOfOne);
+        charOfTwo = tolower((int) charOfTwo);
+    } while (charOfOne == charOfTwo && charOfOne != '\0');
+
+    return charOfOne - charOfTwo;
 }
