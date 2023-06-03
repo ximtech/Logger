@@ -30,3 +30,12 @@ jobs:
     - name: Tests
       working-directory: ${{github.workspace}}/Tests/cmake-build-debug
       run: ./Tests
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        gcov: true
+        files: "*Logger.c.gcov, *Logger.h.gcov"
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: true
+        verbose: true
