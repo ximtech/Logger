@@ -92,8 +92,8 @@ Backup file format:
 name_yyyy-MM-dd.log
 ```
 For example: 
-- For log file with name `cron.log` will be converted to `cron_2023-05-07.log` backup file
-- When multiple backup files for the same timestamp, then `id` will be added for each file
+- For log file with name `cron.log` backup file name will be converted to `cron_2023-05-07.log`
+- When multiple backup files for the same timestamp exist, then `id` will be added for each file
   - Example: `cron_2023-05-07.log`, `cron_2023-05-07.log.2`, `cron_2023-05-07.log.3` etc.
 
 ### Multiple logger subscriptions
