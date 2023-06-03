@@ -63,9 +63,9 @@ LoggerEvent *subscribeFileLogger(LogLevel threshold, const char *fileName, uint3
         return &ERROR_EVENT;
     }
 
-    size_t fileNameLength = strlen(fileName) + 1;   // including line terminator
+    size_t fileNameLength = strnlen(fileName, LOGGER_FILE_NAME_MAX_SIZE) + 1;   // including line terminator
     if (fileNameLength > LOGGER_FILE_NAME_MAX_SIZE) {
-        char *message = "ERROR: [fileName] exceeds the maximum number of characters. Allowed: [%d], actual: [%d]";
+        char *message = "ERROR: [fileName] exceeds the maximum number of characters. Allowed: [%d], actual: [%zu]";
         snprintf(ERROR_EVENT.buffer, LOGGER_BUFFER_SIZE, message, LOGGER_FILE_NAME_MAX_SIZE, fileNameLength);
         return &ERROR_EVENT;
     }
@@ -85,6 +85,7 @@ LoggerEvent *subscribeFileLogger(LogLevel threshold, const char *fileName, uint3
     if (fileEvent.file->out == NULL) {
         snprintf(ERROR_EVENT.buffer, LOGGER_BUFFER_SIZE, "ERROR: Failed to open/create file: [%s]", fileName);
         unlockThread();
+        free(fileEvent.file);
         return &ERROR_EVENT;
     }
 
