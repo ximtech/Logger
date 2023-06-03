@@ -21,7 +21,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Configure Tests CMake
-      run: cmake -S ${{github.workspace}}/Tests -B ${{github.workspace}}/Tests/cmake-build-debug -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -S ${{github.workspace}}/Tests -B ${{github.workspace}}/Tests/cmake-build-debug -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_FLAGS=--coverage -DCMAKE_C_FLAGS=--coverage
 
     - name: Build Tests
       working-directory: ${{github.workspace}}/Tests
