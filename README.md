@@ -2,6 +2,7 @@
 
 [![tests](https://github.com/ximtech/Logger/actions/workflows/cmake-ci.yml/badge.svg?branch=main)](https://github.com/ximtech/Logger/actions/workflows/cmake-ci.yml)
 [![codecov](https://codecov.io/gh/ximtech/Logger/branch/main/graph/badge.svg?token=CbqhIeH0op)](https://codecov.io/gh/ximtech/Logger)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/f0312962366245febac4422dfd7a4216)](https://app.codacy.com/gh/ximtech/Logger/dashboard)
 
 Lightweight logging library written in C.
 
