@@ -1,6 +1,7 @@
 # Logger
 
 [![tests](https://github.com/ximtech/Logger/actions/workflows/cmake-ci.yml/badge.svg?branch=main)](https://github.com/ximtech/Logger/actions/workflows/cmake-ci.yml)
+[![codecov](https://codecov.io/gh/ximtech/Logger/branch/main/graph/badge.svg?token=CbqhIeH0op)](https://codecov.io/gh/ximtech/Logger)
 
 Lightweight logging library written in C.
 
