@@ -38,7 +38,7 @@ static void getBackupFileName(char buffer[64], const char *postfix) {
 
 
 static MunitResult testConsoleLogger(const MunitParameter params[], void *testString) {
-    LoggerEvent *console = subscribeConsoleLogger(LOG_LEVEL_TRACE);
+    subscribeConsoleLogger(LOG_LEVEL_TRACE);
     FILE * file = freopen("output.txt", "wab+", stdout);
 
     LOG_TRACE("TEST", "test some message: [%d]", 1);
@@ -61,7 +61,7 @@ static MunitResult testConsoleLogger(const MunitParameter params[], void *testSt
     fclose(file);
 
     // level filtering test
-    console = subscribeConsoleLogger(LOG_LEVEL_INFO);
+    subscribeConsoleLogger(LOG_LEVEL_INFO);
     file = freopen("output.txt", "wab+", stdout);
 
     LOG_TRACE("TEST", "test some message: [%d]", 1);
@@ -83,7 +83,7 @@ static MunitResult testConsoleLogger(const MunitParameter params[], void *testSt
     loggerUnsubscribeAll();
     fclose(file);
 
-    console = subscribeConsoleLogger(LOG_LEVEL_FATAL);
+    subscribeConsoleLogger(LOG_LEVEL_FATAL);
     file = freopen("output.txt", "wab+", stdout);
 
     LOG_TRACE("TEST", "test some message: [%d]", 1);
@@ -408,6 +408,30 @@ static MunitResult testStringToLogLevel(const MunitParameter params[], void *tes
     return MUNIT_OK;
 }
 
+static MunitResult testOverflowLogger(const MunitParameter params[], void *testString) {
+    subscribeConsoleLogger(LOG_LEVEL_TRACE);
+    FILE * file = freopen("output_ovf.txt", "wab+", stdout);
+
+    char message[LOGGER_BUFFER_SIZE + 10] = {[0 ... LOGGER_BUFFER_SIZE + 10 - 1] = 'A'};
+    LOG_TRACE("TEST", "very long message: [%s]", message);
+    fflush(file);
+
+    char buffer[2048] = {0};
+    readFileContents("output_ovf.txt", buffer);
+    assert_true(checkLogEntry(buffer, "TRACE", "TEST - very long message: [AAAAA"));
+
+    loggerUnsubscribeAll();
+    fclose(file);
+
+    // switch back stdout
+    #if defined(_WIN32) || defined(_WIN64)
+    freopen("CON", "w", stdout); /*Mingw C++; Windows*/
+    #else
+    freopen("/dev/tty", "w", stdout); /*for gcc, ubuntu*/
+    #endif
+    return MUNIT_OK;
+}
+
 static MunitTest loggerTests[] = {
         {.name =  "Test console logger - should correctly log messages to console", .test = testConsoleLogger},
         {.name =  "Test file logger - should correctly log messages to file and rotate them", .test = testFileLogger},
@@ -415,6 +439,7 @@ static MunitTest loggerTests[] = {
         {.name =  "Test custom logger - should correctly format messages for custom logger", .test = testLogCustomCallback},
         {.name =  "Test logLevelToString() - should correctly convert level to string", .test = testLogLevelToString},
         {.name =  "Test stringToLogLevel() - should correctly convert string to level", .test = testStringToLogLevel},
+        {.name =  "Test overflow - should correctly work with string overflow", .test = testOverflowLogger},
         END_OF_TESTS
 };
 
