@@ -456,8 +456,13 @@ static size_t formatTagLevel(char *buffer, const char *tag, LogLevel severity, s
 }
 
 static size_t formatLogMessage(char *buffer, const char *format, va_list list, size_t prefixLength) {
-    size_t messageLength = vsnprintf(buffer + prefixLength, LOGGER_BUFFER_SIZE - prefixLength - 1, format, list);
+    size_t bufferSize = LOGGER_BUFFER_SIZE - prefixLength - 1;
+    size_t messageLength = vsnprintf(buffer + prefixLength, bufferSize, format, list);
     size_t totalMessageLength = prefixLength + messageLength;
+
+    if (totalMessageLength >= LOGGER_BUFFER_SIZE) {     // check for truncation
+        totalMessageLength = LOGGER_BUFFER_SIZE - 2;    // length before line terminator + new line
+    }
     buffer[totalMessageLength] = '\n';
     return totalMessageLength + 1;
 }

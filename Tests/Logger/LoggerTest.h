@@ -419,6 +419,7 @@ static MunitResult testOverflowLogger(const MunitParameter params[], void *testS
     char buffer[2048] = {0};
     readFileContents("output_ovf.txt", buffer);
     assert_true(checkLogEntry(buffer, "TRACE", "TEST - very long message: [AAAAA"));
+    assert_size(strlen(buffer), ==, LOGGER_BUFFER_SIZE - 1);
 
     loggerUnsubscribeAll();
     fclose(file);
